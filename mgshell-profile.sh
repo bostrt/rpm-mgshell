@@ -7,7 +7,7 @@ function pod() {
 }
 
 function log() { 
-    cd $(/usr/libexec/mgshell/log $1)
+    /usr/libexec/mgshell/log $1
 }
 
 function root() { 
