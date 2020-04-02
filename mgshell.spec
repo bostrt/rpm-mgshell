@@ -22,7 +22,6 @@ Source1: mgshell-ns.sh
 Source2: mgshell-pod.sh
 Source3: mgshell-log.sh
 Source4: mgshell-mg.sh
-Source5: mgshell-profile.sh
 
 Group: Application/Productivity
 BuildArch: x86_64
@@ -36,11 +35,13 @@ A command line aid for navigating OpenShift 4 must gather reports.
 %prep
 # Setup Source0
 %setup -q -n %{name}-%{version}
-# Setup Source1 (completions)
 
 %build
 %py3_build
 gcc findmgmarker.c -o findmgmarker
+# Combine bash wrappers into single file
+cat wrappers/* > mgshell-profile.sh 
+sed -i 's_$MGLIBEXEC_%{mglibexecdir}_g' mgshell-profile.sh 
 
 %install
 %py3_install -- --install-scripts %{mglibexecdir}
@@ -50,7 +51,7 @@ install -p -D -m 644 %{SOURCE1} %{buildroot}/%{_sysconfdir}/bash_completion.d/mg
 install -p -D -m 644 %{SOURCE2} %{buildroot}/%{_sysconfdir}/bash_completion.d/mgshell-pod.sh
 install -p -D -m 644 %{SOURCE3} %{buildroot}/%{_sysconfdir}/bash_completion.d/mgshell-log.sh
 install -p -D -m 644 %{SOURCE4} %{buildroot}/%{_sysconfdir}/bash_completion.d/mgshell-mg.sh
-install -p -D -m 755 %{SOURCE5} %{buildroot}/%{_sysconfdir}/profile.d/mgshell.sh
+install -p -D -m 755 mgshell-profile.sh %{buildroot}/%{_sysconfdir}/profile.d/mgshell-profile.sh
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -60,7 +61,7 @@ rm -rf $RPM_BUILD_ROOT
 %license LICENSE
 %{python3_sitelib}/%{name}
 %{python3_sitelib}/%{name}-%{version}-py?.?.egg-info
-%{mglibexecdir}/mg
+%{mglibexecdir}/mgshell
 %{mglibexecdir}/ns
 %{mglibexecdir}/pod
 %{mglibexecdir}/log
@@ -70,4 +71,4 @@ rm -rf $RPM_BUILD_ROOT
 %{_sysconfdir}/bash_completion.d/mgshell-mg.sh
 %{_sysconfdir}/bash_completion.d/mgshell-ns.sh
 %{_sysconfdir}/bash_completion.d/mgshell-pod.sh
-%{_sysconfdir}/profile.d/mgshell.sh
+%{_sysconfdir}/profile.d/mgshell-profile.sh
